@@ -25,6 +25,22 @@ before_script:
 script:
   - make test/"${NOTEBOOK}"
 
+jobs:
+  include:
+    - stage: test
+      script: skip
+      if: commit_message =~ /\[clean-deploy\]/
+    - stage: clean-deploy
+      if: commit_message =~ /\[clean-deploy\]/
+      script:
+        - python3 configure.py -t edge
+        - make build-all
+        - make test-all
+        - make build-all TAG="${COMMIT}"
+        - make build-all TAG="${RELEASE_VERS}"
+        - make push-all TAG="${COMMIT}"
+        - make push-all TAG="${RELEASE_VERS}"
+
 # deploy_notebook uses COMMIT and RELEASE_VERS envars
 deploy:
   provider: script
