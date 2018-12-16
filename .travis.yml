@@ -22,14 +22,11 @@ env:
 before_script:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
-script:
-  - make test/"${NOTEBOOK}"
-
-jobs:
+matrix:
   include:
     - stage: test
-      script: skip
-      if: commit_message =~ /\[clean-deploy\]/
+      if: commit_message !~ /\[clean-deploy\]/
+      script: make test/"${NOTEBOOK}"
     - stage: clean-deploy
       if: commit_message =~ /\[clean-deploy\]/
       script:
